@@ -6,11 +6,7 @@ using Triton.Common;
 using Triton.Game;
 using Triton.Game.Mapping;
 
-// Class & struct by Shadosky
-// Special thanks to Hankerspace
-// Don't forget us in our CustomDeck's credit if u use code find here
-
-namespace Shadosky.Murloc.rush
+namespace Shadosky.murloc
 {
 
     class Murloc : ICustomDeck
@@ -46,7 +42,7 @@ namespace Shadosky.Murloc.rush
             // Some verbose
 
 			
-            Logging.Write("------- Turn " + TritonHS.CurrentTurn + " Loop " + _loopCount + " -- Rush Mode");
+            Logging.Write("------- Turn " + TritonHS.CurrentTurn + " Loop " + _loopCount + " -------");
             _loopCount++;
 
             // ----- First : drops
@@ -67,18 +63,6 @@ namespace Shadosky.Murloc.rush
 				foreach (HSCard card in TritonHS.GetCards(CardZone.Hand).Where(s =>
                 s.CanBeUsed))
 				{
-
-					// ICardDefinition cardDef;
-					// if (!CustomBot.CardDefs.TryGetValue(c.GetCardId(), out cardDef))
-					// {
-						// Logging.Write("\tClass not found: CustomBot.CardDefs." + c.GetCardId() + " (" +
-										// c.GetName() + ")");
-						//Not implemented ??
-						// if (c.IsMinion())
-							// cardDef = new CardDefs.DefaultMinionCard();
-						// else
-							// cardDef = new CardDefs.DefaultSpellCard();
-					// }
 
 					// Retrieve priority
 					PlayPriority priority = MurlocMap[card.Id].GetPlayPriority();
@@ -113,8 +97,6 @@ namespace Shadosky.Murloc.rush
 
 				if (ultraPriority.Count != 0)
 				{
-					//_coinPlayed = false; // Reset coin
-					//yield return PlayCardRoutine(PriorizeCards(ultraPriority));
 					
 					 HSCard best = null;
    
@@ -143,8 +125,7 @@ namespace Shadosky.Murloc.rush
 				}
 				else if (highPriority.Count != 0)
 				{
-					//_coinPlayed = false; // Reset coin
-					//yield return PlayCardRoutine(PriorizeCards(highPriority));
+
 					
 					 HSCard best = null;
    
@@ -173,8 +154,6 @@ namespace Shadosky.Murloc.rush
 				}
 				else if (normalPriority.Count != 0)
 				{
-					//_coinPlayed = false; // Reset coin
-					//yield return PlayCardRoutine(PriorizeCards(normalPriority));
 					
 					 HSCard best = null;
    
@@ -203,7 +182,6 @@ namespace Shadosky.Murloc.rush
 				}
 				else if (lowPriority.Count != 0 ) // Dont play low priority if coin if used [... =0 && !_coinPlayed
 				{
-					//yield return PlayCardRoutine(PriorizeCards(lowPriority));
 					
 					 HSCard best = null;
    
@@ -277,29 +255,82 @@ namespace Shadosky.Murloc.rush
 			
             // Retrive cards on our battlefield which can be used
             // CanbeUsed function is checking if we can attack with this minion (it is not frozen, not exhausted, has atk > 0, etc...)
+			 
+			
             foreach (HSCard card in TritonHS.GetCards(CardZone.Battlefield).Where(s => s.CanBeUsed))
             {
-                // Check if enemy has a taunter
-                if (DoTheEnemyHasATaunter())
-                {
-                    // Do our attack on enemy taunter
-                    Logging.Write("Do attack : " + card.Name + " -> " + RetrieveEnemyTaunter().Name);
-                    card.DoAttack(RetrieveEnemyTaunter());
-                    yield return Coroutine.Sleep(1000); // Little sleep after an attack
-                    yield break;
+			HSCard BestEnnemy = null;
+				//Seek if a dangerous monster is on the field
+			
+				foreach (HSCard EnnemyCard in TritonHS.GetCards(CardZone.Battlefield, false).Where(s => s.CanBeAttacked))
+				{
+				double level = TradeHelper.DetermineMinionDangerousLevel(EnnemyCard);
+				Logging.Write("Level of : " + EnnemyCard.Name + " -> " + level);
+				
+					if(DoTheEnemyHasATaunter())
+					{
+						if ( EnnemyCard.HasTaunt)
+						{
+							if(EnnemyCard.Health <= card.Attack) //Can we kill it ?
+							{
+							// Do our attack on enemy taunter
+							BestEnnemy = EnnemyCard;
+							Logging.Write("Kill the Taunter : " + card.Name + " -> " + EnnemyCard.Name);
+                    
                         // Get out of this loop => return at the start of the function => check if we can use new cards (maybe we have drawn a card?)
-                }
-
-                // Enemy has NO taunter and we can target him => go for the face
-                if (TritonHS.EnemyHero.CanBeTargetedByOpponents)
-                {
-                    // Do our attack
-                    Logging.Write("Do attack : " + card.Name + " -> " + TritonHS.EnemyHero.Name);
-                    card.DoAttack(TritonHS.EnemyHero);
-                    yield return Coroutine.Sleep(1000); // Little sleep after an attack
-                    yield break;
-                        // Get out of this loop => return at the start of the function => check if we can use new cards (maybe we have drawn a card?)
-                }
+							}else{
+								BestEnnemy = null;
+								}
+						}
+					}else{
+				
+						if(level <= 14)
+						{
+							if(EnnemyCard.Health <= card.Attack && card.Health > EnnemyCard.Attack)
+								{
+									Logging.Write("Best ennemy for : " + card.Name + " -> " + EnnemyCard.Name);
+									BestEnnemy = EnnemyCard;									
+									
+								}
+						}
+						if(level > 14 && level < 20)
+						{
+							if(EnnemyCard.Health <= card.Attack)
+								{
+									Logging.Write("Best ennemy for : " + card.Name + " -> " + EnnemyCard.Name);
+									BestEnnemy = EnnemyCard;						
+									
+								}
+						}
+						if(level >= 20)
+						{
+							if(EnnemyCard.Health /2 <= card.Attack )
+								{
+									Logging.Write("Best ennemy for : " + card.Name + " -> " + EnnemyCard.Name);
+									BestEnnemy = EnnemyCard;								
+									
+								}
+						}
+				
+									
+					}
+				
+				}
+			
+				if(BestEnnemy != null){	
+					card.DoAttack(BestEnnemy);
+                    yield return Coroutine.Sleep(1000); // Little sleep after an attack	
+								}else if (TritonHS.EnemyHero.CanBeTargetedByOpponents)
+						{
+							// Do our attack
+							Logging.Write("Do attack : " + card.Name + " -> " + TritonHS.EnemyHero.Name);
+							card.DoAttack(TritonHS.EnemyHero);
+							yield return Coroutine.Sleep(1000); // Little sleep after an attack
+							
+								// Get out of this loop => return at the start of the function => check if we can use new cards (maybe we have drawn a card?)
+						}
+					yield break;
+			
             }
 
 

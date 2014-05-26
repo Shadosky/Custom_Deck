@@ -5,11 +5,7 @@ using Triton.Common;
 using Triton.Game;
 using Triton.Game.Mapping;
 
-// Class & struct by Shadosky
-// Special thanks to Hankerspace
-// Don't forget us in our CustomDeck's credit if u use code find here
-
-namespace Shadosky.Murloc.rush
+namespace Shadosky.murloc
 {
 	public static class TradeHelper
 	{
@@ -41,9 +37,6 @@ namespace Shadosky.Murloc.rush
             level += c.Health * 0.5;
             level += c.Attack * 1.5;
             if (c.HasTaunt) level += c.Health * 0.5;
-
-            //level += HowManyBuffs(c) * 3;
-            //level -= HowManyDebuffs(c) * 3;
 
             if (c.IsPoisonous) level += 4;
             if (c.IsEnraged) level += 5;

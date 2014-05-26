@@ -5,11 +5,7 @@ using Triton.Common;
 using Triton.Game;
 using Triton.Game.Mapping;
 
-// Class & struct by Shadosky
-// Special thanks to Hankerspace
-// Don't forget us in our CustomDeck's credit if u use code find here
-
-namespace Shadosky.Murloc.rush
+namespace Shadosky.murloc
 {
 	public static class DropHelper
 	{
@@ -68,7 +64,7 @@ namespace Shadosky.Murloc.rush
 			if ( Murloc.DoTheEnemyHasATaunter())
 				{
 					HSCard Taunter = Murloc.RetrieveEnemyTaunter();
-					if(Taunter.Health <= attack)
+					if(Taunter != null && Taunter.Health <= attack)
 						return PlayPriority.High;
 					else
 						return PlayPriority.Low;

@@ -5,11 +5,7 @@ using Triton.Common;
 using Triton.Game;
 using Triton.Game.Mapping;
 
-// Class & struct by Shadosky
-// Special thanks to Hankerspace
-// Don't forget us in our CustomDeck's credit if u use code find here
-
-namespace Shadosky.Murloc.rush
+namespace Shadosky.murloc
 {
 
 public enum PlayPriority
