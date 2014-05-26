@@ -3,8 +3,6 @@ Custom_Deck
 
 Custom deck for the HearthBuddy Bot
 
-Custom deck for the HearthBuddy Bot
-
 Put all the files in your Heathbuddy folder/CustomDeck/MurlocByShadosky/
 
 Contact me on the Heathbuddy forum if u need some advice to make ur own Custom deck 
